@@ -1,15 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
-#include "account.h"     
+#include "account.h"     /* nguyên mẫu phân hệ Account (trước main) */
 
 /* ==================== NGUYÊN MẪU HÀM (TRƯỚC main) ==================== */
 
-/* 2. Phân hệ Transaction (Nguyễn Nhật An) - đang phát triển
-int tm_withdraw(AccountManager *am, const char *accNum, double amount);
-int tm_transfer(AccountManager *am, const char *src, const char *dest, double amt);
-void tm_sortByBalance(AccountManager *am);
-*/
+/* 2. Phân hệ Transaction (Nguyễn Nhật An) - đang phát triển*/
+int tm_withdraw(AccountManager *am, const char *accNum, double amount);              /* Rút tiền */
+int tm_transfer(AccountManager *am, const char *src, const char *dest, double amt);  /* Chuyển khoản */
+void tm_sortByBalance(AccountManager *am);                                           /* Sắp xếp tài khoản theo số dư giảm dần */
 
 /* 3. Phân hệ File I/O (Phạm Nguyễn Tiến Phát) - đang phát triển
 int file_saveAccounts(const AccountManager *am, const char *filename);
@@ -24,7 +23,7 @@ void ui_printResult(int code);
 void ui_printAccount(const Account *acc);
 void ui_printSearchResults(const AccountManager *am, const int *indexes, int found);
 
-
+/* --- Hằng số: không dùng magic number --- */
 #define MENU_NONE          (-1)
 #define MENU_EXIT          0
 #define MENU_OPEN_ACCOUNT  1
@@ -35,6 +34,7 @@ void ui_printSearchResults(const AccountManager *am, const int *indexes, int fou
 #define MENU_LOAD          6
 #define MAX_SEARCH_RESULTS 50
 
+/* ==================== ĐỊNH NGHĨA main (các hàm khác định nghĩa SAU main) ==================== */
 int main(void) {
     AccountManager am;
     int choice = MENU_NONE;

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <time.h>
 #include "common.h"
-#include "account.h"   
+#include "account.h"
 
 static int am_findAccountIndex(const AccountManager *am, const char *accNum) {
     int i;
@@ -14,8 +14,6 @@ static int am_findAccountIndex(const AccountManager *am, const char *accNum) {
     return -1;
 }
 
-
-/*========================================== OPEN ACCOUNT ==========================================*/
 int am_openAccount(AccountManager *am, const Account *newAcc) {
     Account *temp;
     time_t now;
@@ -27,7 +25,6 @@ int am_openAccount(AccountManager *am, const Account *newAcc) {
     if (newAcc->balance < 0) return ERROR_INVALID_DATA;
     if (am_findAccountIndex(am, newAcc->accountNumber) >= 0) return ERROR_DUPLICATE_ACCOUNT;
 
-   
     temp = (Account *)realloc(am->accounts, (size_t)(am->count + 1) * sizeof(Account));
     if (temp == NULL) return ERROR_MEMORY_FULL;
 
@@ -48,7 +45,6 @@ int am_openAccount(AccountManager *am, const Account *newAcc) {
     return SUCCESS;
 }
 
-/*======================================= UPDATE HOLDER INFO =======================================*/
 int am_updateHolderInfo(AccountManager *am, const char *accNum, const char *newName) {
     int index;
 
@@ -64,7 +60,6 @@ int am_updateHolderInfo(AccountManager *am, const char *accNum, const char *newN
     return SUCCESS;
 }
 
-/*================================================ SEARCH ===========================================*/
 int am_searchAccount(const AccountManager *am, const char *keyword, int *outIndexes, int maxOut) {
     int i;
     int found = 0;
@@ -83,10 +78,9 @@ int am_searchAccount(const AccountManager *am, const char *keyword, int *outInde
     return found;
 }
 
-/*================================================= FREE ===========================================*/
 void am_freeAccounts(AccountManager *am) {
     if (am == NULL) return;
-    free(am->accounts);   
+    free(am->accounts);
     am->accounts = NULL;
     am->count = 0;
 }

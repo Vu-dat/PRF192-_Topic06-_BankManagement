@@ -78,6 +78,41 @@ int am_searchAccount(const AccountManager *am, const char *keyword, int *outInde
     return found;
 }
 
+int am_deleteAccount(AccountManager *am, const char *accNum) {
+    int index;
+    int i;
+    Account *temp;
+
+    if (am == NULL || accNum == NULL || accNum[0] == '\0') {
+        return ERROR_INVALID_DATA;
+    }
+    if (am->count <= 0 || am->accounts == NULL) {
+        return ERROR_NOT_FOUND;
+    }
+
+    index = am_findAccountIndex(am, accNum);
+    if (index < 0) {
+        return ERROR_NOT_FOUND;
+    }
+
+    for (i = index; i < am->count - 1; i++) {
+        am->accounts[i] = am->accounts[i + 1];
+    }
+
+    am->count--;
+    if (am->count == 0) {
+        free(am->accounts);
+        am->accounts = NULL;
+        return SUCCESS;
+    }
+
+    temp = (Account *)realloc(am->accounts, (size_t)am->count * sizeof(Account));
+    if (temp != NULL) {
+        am->accounts = temp;
+    }
+    return SUCCESS;
+}
+
 void am_freeAccounts(AccountManager *am) {
     if (am == NULL) return;
     free(am->accounts);

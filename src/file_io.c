@@ -169,3 +169,90 @@ int file_logTransaction(const char *filename, const Transaction *txn) {
     fclose(fp);
     return SUCCESS;
 }
+
+int file_loadTransactions(const char *filename, Transaction **outTxns, int *outCount) {
+    FILE *fp;
+    char line[MAX_LINE_BUFFER];
+    Transaction *txns = NULL;
+    int count = 0;
+
+    if (filename == NULL || filename[0] == '\0' || outTxns == NULL || outCount == NULL) {
+        return ERROR_INVALID_DATA;
+    }
+    *outTxns = NULL;
+    *outCount = 0;
+
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+        char altPath[256];
+        if (strstr(filename, "data/") == NULL && strstr(filename, "data\\") == NULL) {
+            snprintf(altPath, sizeof(altPath), "data/%s", filename);
+            fp = fopen(altPath, "r");
+        }
+        if (fp == NULL) {
+            return ERROR_NOT_FOUND;
+        }
+    }
+
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        Transaction tempTxn;
+        Transaction *tempPtr;
+        size_t len = strlen(line);
+        int itemsRead;
+
+        while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
+            line[len - 1] = '\0';
+            len--;
+        }
+
+        if (len == 0 || line[0] == '#') {
+            continue;
+        }
+
+        memset(&tempTxn, 0, sizeof(tempTxn));
+
+        if (strchr(line, '|') != NULL) {
+            itemsRead = sscanf(line, "%19[^|]|%19[^|]|%19[^|]|%14[^|]|%lf|%24[^\n]",
+                               tempTxn.transactionID,
+                               tempTxn.sourceAcc,
+                               tempTxn.destAcc,
+                               tempTxn.type,
+                               &tempTxn.amount,
+                               tempTxn.timestamp);
+        } else {
+            itemsRead = sscanf(line, "%19[^,],%19[^,],%19[^,],%14[^,],%lf,%24[^\n]",
+                               tempTxn.transactionID,
+                               tempTxn.sourceAcc,
+                               tempTxn.destAcc,
+                               tempTxn.type,
+                               &tempTxn.amount,
+                               tempTxn.timestamp);
+        }
+
+        if (itemsRead < 6) {
+            continue;
+        }
+
+        tempPtr = (Transaction *)realloc(txns, (size_t)(count + 1) * sizeof(Transaction));
+        if (tempPtr == NULL) {
+            free(txns);
+            fclose(fp);
+            return ERROR_MEMORY_FULL;
+        }
+
+        txns = tempPtr;
+        txns[count] = tempTxn;
+        count++;
+    }
+
+    fclose(fp);
+    *outTxns = txns;
+    *outCount = count;
+    return SUCCESS;
+}
+
+void file_freeTransactions(Transaction *txns) {
+    if (txns != NULL) {
+        free(txns);
+    }
+}
